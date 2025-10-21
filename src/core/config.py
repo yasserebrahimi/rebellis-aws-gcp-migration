@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     APP_PORT: int = Field(8000, env="APP_PORT")
     DEBUG: bool = Field(True, env="DEBUG")
 
-    SECRET_KEY: str = Field("dev-secret-key-change-me", env="SECRET_KEY")
+    SECRET_KEY: str = Field(..., env="SECRET_KEY", description="Secret key for JWT tokens - MUST be set in production")
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_HOURS: int = 24
 
@@ -43,6 +43,14 @@ class Settings(BaseSettings):
     def parse_cors(cls, v):
         if isinstance(v, str):
             return [o.strip() for o in v.split(",") if o.strip()]
+        return v
+    
+    @field_validator("SECRET_KEY")
+    def validate_secret_key(cls, v):
+        if not v or v == "dev-secret-key-change-me":
+            raise ValueError("SECRET_KEY must be set to a secure value in production")
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY must be at least 32 characters long")
         return v
 
 settings = Settings()

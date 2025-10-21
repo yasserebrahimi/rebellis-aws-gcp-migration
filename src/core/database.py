@@ -11,7 +11,17 @@ logger = logging.getLogger(__name__)
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
     pool_pre_ping=True,
+    pool_recycle=3600,  # Recycle connections every hour
+    pool_timeout=30,    # Timeout for getting connection from pool
+    connect_args={
+        "command_timeout": 60,
+        "server_settings": {
+            "application_name": settings.APP_NAME,
+        }
+    } if "postgresql" in settings.DATABASE_URL else {}
 )
 
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

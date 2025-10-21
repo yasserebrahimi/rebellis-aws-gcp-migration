@@ -1,4 +1,4 @@
-import hashlib
+import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.models.user import User
@@ -10,7 +10,13 @@ class AuthService:
         self.db = db
 
     def _hash(self, password: str) -> str:
-        return hashlib.sha256(password.encode("utf-8")).hexdigest()
+        """Hash password using bcrypt with salt"""
+        salt = bcrypt.gensalt()
+        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    
+    def verify_password(self, password: str, hashed: str) -> bool:
+        """Verify password against hash"""
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
     async def get_user_by_email(self, email: str):
         q = await self.db.execute(select(User).where(User.email == email))
@@ -28,7 +34,7 @@ class AuthService:
 
     async def authenticate_user(self, email: str, password: str):
         user = await self.get_user_by_email(email)
-        if user and user.hashed_password == self._hash(password):
+        if user and self.verify_password(password, user.hashed_password):
             return user
         return None
 

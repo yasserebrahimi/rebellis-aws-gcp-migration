@@ -216,7 +216,20 @@ def create_app() -> FastAPI:
     
     @app.exception_handler(500)
     async def internal_error_handler(request: Request, exc):
-        logger.error(f"Internal error: {exc}")
+        logger.error(f"Internal error: {exc}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred",
+                "request_id": request.state.request_id if hasattr(request.state, 'request_id') else None
+            }
+        )
+    
+    # Global exception handler for unhandled exceptions
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.error(f"Unhandled exception: {exc}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={

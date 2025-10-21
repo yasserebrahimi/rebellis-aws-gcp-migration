@@ -32,7 +32,8 @@ class RedisCache:
         try:
             v = await self.redis_client.get(key)
             return json.loads(v) if v else None
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Redis get failed: {e}")
             return None
 
     async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
@@ -40,7 +41,8 @@ class RedisCache:
         try:
             await self.redis_client.setex(key, ttl or self.ttl, json.dumps(value))
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Redis set failed: {e}")
             return False
 
     async def delete(self, key: str) -> bool:
@@ -48,7 +50,8 @@ class RedisCache:
         try:
             await self.redis_client.delete(key)
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Redis delete failed: {e}")
             return False
 
     async def clear(self) -> bool:
@@ -56,7 +59,8 @@ class RedisCache:
         try:
             await self.redis_client.flushdb()
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Redis clear failed: {e}")
             return False
 
     async def close(self):
