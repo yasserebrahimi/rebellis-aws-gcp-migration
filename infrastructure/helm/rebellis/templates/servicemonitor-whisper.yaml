@@ -1,0 +1,15 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "rebellis.fullname" . }}-whisper
+  labels: { release: prometheus }
+{{- with .Values.monitoring.labels }}{{ toYaml . | indent 2 }}{{- end }}
+spec:
+  selector:
+    matchLabels: { app: {{ include "rebellis.fullname" . }}-whisper }
+  endpoints:
+    - port: http
+      path: {{ .Values.monitoring.scrapePath }}
+      interval: {{ .Values.monitoring.scrapeInterval }}
+{{- end }}

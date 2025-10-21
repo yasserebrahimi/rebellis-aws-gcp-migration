@@ -1,0 +1,11 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: restrict-registries-staging
+spec:
+  match:
+    namespaces: [staging]
+  parameters:
+    repos:
+      - "gcr.io/rebellis-ai/"
+      - "registry.rebellis.ai/"

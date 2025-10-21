@@ -1,0 +1,18 @@
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "rebellis.fullname" . }}-whisper
+spec:
+  scaleTargetRef:
+    name: {{ include "rebellis.fullname" . }}-whisper
+  pollingInterval: {{ .Values.keda.whisper.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.whisper.cooldownPeriod }}
+  minReplicaCount: {{ .Values.keda.whisper.minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.whisper.maxReplicaCount }}
+  triggers:
+    - type: {{ .Values.keda.whisper.type }}
+      metadata:
+        subscriptionName: {{ .Values.keda.whisper.subscriptionName }}
+        value: {{ .Values.keda.whisper.value | quote }}
+{{- end }}

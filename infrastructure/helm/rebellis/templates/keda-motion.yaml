@@ -1,0 +1,18 @@
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "rebellis.fullname" . }}-motion
+spec:
+  scaleTargetRef:
+    name: {{ include "rebellis.fullname" . }}-motion
+  pollingInterval: {{ .Values.keda.motion.pollingInterval }}
+  cooldownPeriod: {{ .Values.keda.motion.cooldownPeriod }}
+  minReplicaCount: {{ .Values.keda.motion.minReplicaCount }}
+  maxReplicaCount: {{ .Values.keda.motion.maxReplicaCount }}
+  triggers:
+    - type: {{ .Values.keda.motion.type }}
+      metadata:
+        subscriptionName: {{ .Values.keda.motion.subscriptionName }}
+        value: {{ .Values.keda.motion.value | quote }}
+{{- end }}

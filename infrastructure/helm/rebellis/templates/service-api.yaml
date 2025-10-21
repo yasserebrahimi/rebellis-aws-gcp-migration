@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rebellis.fullname" . }}-api
+spec:
+  selector: { app: {{ include "rebellis.fullname" . }}-api }
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.api.port }}

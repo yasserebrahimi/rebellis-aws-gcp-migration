@@ -1,0 +1,9 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: ns-required-labels-production
+spec:
+  match:
+    namespaces: [production]
+  parameters:
+    labels: ["owner","cost-center","env"]

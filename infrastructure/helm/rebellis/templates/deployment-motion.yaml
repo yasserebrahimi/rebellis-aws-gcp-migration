@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rebellis.fullname" . }}-motion
+spec:
+  replicas: {{ .Values.motion.replicas }}
+  selector:
+    matchLabels: { app: {{ include "rebellis.fullname" . }}-motion }
+  template:
+    metadata:
+      labels: { app: {{ include "rebellis.fullname" . }}-motion }
+    spec:
+      serviceAccountName: {{ include "rebellis.fullname" . }}-motion
+      containers:
+        - name: motion
+          image: "{{ .Values.image.registry }}/{{ .Values.motion.imageName }}:{{ .Values.image.tag }}"
+          ports: [{ containerPort: 8082 }]
+          resources:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+ {{- toYaml .Values.motion.resources | nindent 12 }}

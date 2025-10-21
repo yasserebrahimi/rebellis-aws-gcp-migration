@@ -1,0 +1,78 @@
+{
+  "title": "Rebellis API \u2013 Drilldown",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "15s",
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "method",
+        "label": "HTTP Method",
+        "datasource": "Prometheus",
+        "query": "label_values(http_requests_total, method)"
+      },
+      {
+        "type": "query",
+        "name": "status",
+        "label": "HTTP Status",
+        "datasource": "Prometheus",
+        "query": "label_values(http_requests_total, status)"
+      },
+      {
+        "type": "query",
+        "name": "route",
+        "label": "Route",
+        "datasource": "Prometheus",
+        "query": "label_values(http_requests_total, handler)"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Requests by Method",
+      "targets": [
+        {
+          "expr": "sum by (method) (rate(http_requests_total{job=\"api\"}[5m]))"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "graph",
+      "title": "Requests by Status",
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(http_requests_total{job=\"api\"}[5m]))"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "type": "graph",
+      "title": "Selected Route Latency (p95 ms)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m]))) * 1000"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      }
+    }
+  ]
+}

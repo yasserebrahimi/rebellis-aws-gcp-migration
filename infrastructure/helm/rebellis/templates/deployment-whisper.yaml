@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rebellis.fullname" . }}-whisper
+spec:
+  replicas: {{ .Values.whisper.replicas }}
+  selector:
+    matchLabels: { app: {{ include "rebellis.fullname" . }}-whisper }
+  template:
+    metadata:
+      labels: { app: {{ include "rebellis.fullname" . }}-whisper }
+    spec:
+      serviceAccountName: {{ include "rebellis.fullname" . }}-whisper
+      containers:
+        - name: whisper
+          image: "{{ .Values.image.registry }}/{{ .Values.whisper.imageName }}:{{ .Values.image.tag }}"
+          ports: [{ containerPort: 8081 }]
+          resources:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+ {{- toYaml .Values.whisper.resources | nindent 12 }}

@@ -1,0 +1,71 @@
+replicaCount: 3
+
+image:
+  registry: gcr.io/rebellis-ai
+  pullPolicy: IfNotPresent
+  tag: "demo"
+
+api:
+  imageName: rebellis-api
+  port: 8000
+
+whisper:
+  imageName: rebellis-whisper
+  replicas: 1
+
+motion:
+  imageName: rebellis-motion
+  replicas: 1
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: api-production.rebellis.ai
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+monitoring:
+  enabled: true
+  scrapePath: /metrics
+  scrapeInterval: 30s
+
+prometheusRule:
+  enabled: true
+  labels: {}
+
+gcp:
+  workloadIdentity:
+    enabled: true
+    apiGsaEmail: api-sa@rebellis-ai.iam.gserviceaccount.com
+    whisperGsaEmail: whisper-sa@rebellis-ai.iam.gserviceaccount.com
+    motionGsaEmail: motion-sa@rebellis-ai.iam.gserviceaccount.com
+
+cloudsql:
+  enabled: true
+  instanceConnectionName: rebellis-ai:europe-west4:rebellis-production-sql
+  port: 5432
+  usePrivateIP: true
+  image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.11.4
+  resources: {}
+
+keda:
+  enabled: true
+  whisper:
+    type: gcp-pubsub
+    subscriptionName: whisper-jobs-production
+    value: "5"
+    cooldownPeriod: 60
+    pollingInterval: 10
+    minReplicaCount: 0
+    maxReplicaCount: 50
+  motion:
+    type: gcp-pubsub
+    subscriptionName: motion-jobs-production
+    value: "5"
+    cooldownPeriod: 60
+    pollingInterval: 10
+    minReplicaCount: 0
+    maxReplicaCount: 50

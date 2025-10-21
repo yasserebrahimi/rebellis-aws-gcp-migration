@@ -1,0 +1,22 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.rbac }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "rebellis.fullname" . }}-prom-scrape
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints","pods","services"]
+    verbs: ["get","list","watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "rebellis.fullname" . }}-prom-scrape
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "rebellis.fullname" . }}-prom-scrape
+{{- end }}

@@ -1,0 +1,20 @@
+groups:
+  - name: api.slo
+    rules:
+      - alert: ApiP95LatencyHigh
+        expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="api"}[5m]))) * 1000 > 300
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "API p95 latency > 300ms" }
+  - name: services.errors
+    rules:
+      - alert: WhisperErrorRateHigh
+        expr: 100 * (sum(rate(http_requests_total{job="whisper",status=~"5.."}[10m])) / sum(rate(http_requests_total{job="whisper"}[10m]))) > 5
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Whisper 5xx > 5%" }
+      - alert: MotionErrorRateHigh
+        expr: 100 * (sum(rate(http_requests_total{job="motion",status=~"5.."}[10m])) / sum(rate(http_requests_total{job="motion"}[10m]))) > 5
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Motion 5xx > 5%" }

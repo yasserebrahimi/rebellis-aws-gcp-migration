@@ -1,0 +1,19 @@
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: Slack - Rebellis
+    receivers:
+      - uid: slack_rebellis
+        type: slack
+        settings:
+          url: https://hooks.slack.com/services/REPLACE/ME
+          recipient: '#alerts'
+          username: grafana
+          icon_emoji: bell
+  - orgId: 1
+    name: Email - NOC
+    receivers:
+      - uid: email_noc
+        type: email
+        settings:
+          addresses: "noc@example.com"

@@ -1,0 +1,9 @@
+%% Mermaid — System Architecture
+flowchart LR
+  Client --> API
+  API --> Whisper
+  API --> Motion
+  Whisper --> Triton
+  Motion --> Triton
+  API --> Redis
+  API --> Postgres

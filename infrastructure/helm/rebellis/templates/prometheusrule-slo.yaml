@@ -1,0 +1,40 @@
+{{- if and .Values.monitoring.enabled .Values.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "rebellis.fullname" . }}-slo
+  labels: { release: prometheus }
+spec:
+  groups:
+    - name: "slo.api"
+      rules:
+        - alert: ApiP95LatencyHigh
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service="{{ include "rebellis.fullname" . }}-api"}[5m]))) * 1000 > {{ .Values.slo.api.p95LatencyMs | default 300 }}
+          for: 10m
+          labels: { severity: warning }
+          annotations: { summary: "API p95 latency above target", description: "p95 latency > {{ .Values.slo.api.p95LatencyMs | default 300 }} ms for 10m" }
+    - name: "slo.whisper"
+      rules:
+        - alert: WhisperP95LatencyHigh
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service="{{ include "rebellis.fullname" . }}-whisper"}[5m]))) * 1000 > {{ .Values.slo.whisper.p95LatencyMs | default 600 }}
+          for: 10m
+          labels: { severity: warning }
+          annotations: { summary: "Whisper p95 latency above target", description: "p95 latency > {{ .Values.slo.whisper.p95LatencyMs | default 600 }} ms for 10m" }
+        - alert: WhisperErrorBudgetBurn
+          expr: (sum(rate(http_requests_total{service="{{ include "rebellis.fullname" . }}-whisper",status=~"5.."}[15m])) / sum(rate(http_requests_total{service="{{ include "rebellis.fullname" . }}-whisper"}[15m]))) > (1 - {{ .Values.slo.whisper.targetAvailability | default 0.99 }}) * 3
+          for: 15m
+          labels: { severity: warning }
+          annotations: { summary: "Whisper error budget burn", description: "15m error rate > 3x budget" }
+    - name: "slo.motion"
+      rules:
+        - alert: MotionP95LatencyHigh
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service="{{ include "rebellis.fullname" . }}-motion"}[5m]))) * 1000 > {{ .Values.slo.motion.p95LatencyMs | default 600 }}
+          for: 10m
+          labels: { severity: warning }
+          annotations: { summary: "Motion p95 latency above target", description: "p95 latency > {{ .Values.slo.motion.p95LatencyMs | default 600 }} ms for 10m" }
+        - alert: MotionErrorBudgetBurn
+          expr: (sum(rate(http_requests_total{service="{{ include "rebellis.fullname" . }}-motion",status=~"5.."}[15m])) / sum(rate(http_requests_total{service="{{ include "rebellis.fullname" . }}-motion"}[15m]))) > (1 - {{ .Values.slo.motion.targetAvailability | default 0.99 }}) * 3
+          for: 15m
+          labels: { severity: warning }
+          annotations: { summary: "Motion error budget burn", description: "15m error rate > 3x budget" }
+{{- end }}

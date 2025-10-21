@@ -1,0 +1,13 @@
+{{- if .Values.limitrange.enabled }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ include "rebellis.fullname" . }}-limits
+spec:
+  limits:
+    - default:
+        {{- toYaml .Values.limitrange.default | nindent 8 }}
+      defaultRequest:
+        {{- toYaml .Values.limitrange.defaultRequest | nindent 8 }}
+      type: Container
+{{- end }}

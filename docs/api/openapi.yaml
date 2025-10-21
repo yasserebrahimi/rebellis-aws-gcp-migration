@@ -1,0 +1,73 @@
+openapi: 3.1.0
+info:
+  title: Rebellis API
+  version: 1.0.0
+servers:
+  - url: https://api.rebellis.example.com
+paths:
+  /health:
+    get:
+      summary: Liveness/Readiness
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+  /v1/infer:
+    post:
+      summary: Transcribe audio
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                language:
+                  type: string
+      responses:
+        '202': { description: Accepted }
+  /v1/animate:
+    post:
+      summary: Generate motion from text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text: { type: string }
+                config: { type: object, additionalProperties: true }
+      responses:
+        '202': { description: Accepted }
+  /v1/jobs/{id}:
+    get:
+      summary: Get job status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Job info }
+  /auth/token:
+    post:
+      summary: Obtain JWT token
+      responses:
+        '200': { description: Token response }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

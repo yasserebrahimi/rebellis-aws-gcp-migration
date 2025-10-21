@@ -1,0 +1,12 @@
+{{- if .Values.quota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "rebellis.fullname" . }}-quota
+spec:
+  hard:
+{{- range $k, $v := .Values.quota.hard }}
+    {{ $k }}: {{ $v | quote }}
+{{- end }}
+  scopes: {{- toYaml .Values.quota.scopes | nindent 4 }}
+{{- end }}

@@ -1,0 +1,30 @@
+{{- if .Values.monitoring.dcgm.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dcgm-exporter
+spec:
+  selector:
+    matchLabels:
+      app: dcgm-exporter
+  template:
+    metadata:
+      labels:
+        app: dcgm-exporter
+    spec:
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: dcgm
+          image: nvidia/dcgm-exporter:3.3.1-3.4.0-ubuntu22.04
+          ports:
+            - containerPort: 9400
+              name: metrics
+          resources:
+            limits: { cpu: "500m", memory: "256Mi" }
+            requests: { cpu: "100m", memory: "128Mi" }
+{{- end }}

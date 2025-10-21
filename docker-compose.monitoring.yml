@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./infrastructure/monitoring/prometheus-rules:/etc/prometheus/rules
+    ports: ["9090:9090"]
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    ports: ["3001:3000"]
+    volumes:
+      - ./infrastructure/monitoring/grafana-provisioning:/etc/grafana/provisioning
+      - ./infrastructure/monitoring/grafana-dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    depends_on: [prometheus]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    ports: ["9093:9093"]
+    volumes:
+      - ./infrastructure/monitoring/alertmanager:/etc/alertmanager
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml"]

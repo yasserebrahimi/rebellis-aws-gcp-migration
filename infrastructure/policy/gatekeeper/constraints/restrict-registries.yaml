@@ -1,0 +1,13 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: restrict-registries
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment","StatefulSet","DaemonSet"]
+  parameters:
+    repos:
+      - "gcr.io/"
+      - "registry.rebellis.ai/"

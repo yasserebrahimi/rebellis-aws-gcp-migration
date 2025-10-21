@@ -1,0 +1,7 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sContainerSecurity
+metadata:
+  name: enforce-container-security-staging
+spec:
+  match:
+    namespaces: [staging]

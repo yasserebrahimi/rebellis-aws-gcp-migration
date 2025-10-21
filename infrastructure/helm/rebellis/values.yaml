@@ -1,0 +1,153 @@
+image:
+  registry: registry.rebellis.ai
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+api:
+  imageName: rebellis-api
+  port: 8000
+  env: {}
+  resources:
+    limits: { cpu: "1", memory: 1Gi }
+    requests: { cpu: 200m, memory: 256Mi }
+
+whisper:
+  imageName: rebellis-whisper
+  replicas: 1
+  resources: {}
+
+motion:
+  imageName: rebellis-motion
+  replicas: 1
+  resources: {}
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+envFromSecret: rebellis-secrets
+
+monitoring:
+  enabled: true
+  labels: {}
+  scrapePath: /metrics
+  scrapeInterval: 30s
+
+prometheusRule:
+  enabled: true
+  labels: {}
+  groups:
+    - name: api.rules
+      rules:
+        - alert: Api5xxErrorRate
+          expr: |
+            sum(rate(http_requests_total{service="{{ include "rebellis.fullname" . }}-api",status=~"5.."}[5m]))
+            / sum(rate(http_requests_total{service="{{ include "rebellis.fullname" . }}-api"}[5m])) > 0.05
+          for: 5m
+          labels: { severity: warning }
+          annotations:
+            summary: "High 5xx error rate on API"
+            description: "5xx error rate > 5% over 5m"
+
+slo:
+  api: { targetAvailability: 0.99, p95LatencyMs: 300 }
+  whisper: { targetAvailability: 0.99, p95LatencyMs: 600 }
+  motion: { targetAvailability: 0.99, p95LatencyMs: 600 }
+
+gcp:
+  workloadIdentity:
+    enabled: false
+    apiGsaEmail: ""        # e.g. api-sa@PROJECT_ID.iam.gserviceaccount.com
+    whisperGsaEmail: ""
+    motionGsaEmail: ""
+
+cloudsql:
+  enabled: false
+  instanceConnectionName: "PROJECT:REGION:INSTANCE"
+  port: 5432
+  usePrivateIP: true
+  image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.11.4
+  resources: {}
+
+keda:
+  enabled: false
+  whisper:
+    type: gcp-pubsub
+    subscriptionName: whisper-jobs
+    value: "5"     # msgs per replica
+    cooldownPeriod: 60
+    pollingInterval: 10
+    minReplicaCount: 0
+    maxReplicaCount: 10
+  motion:
+    type: gcp-pubsub
+    subscriptionName: motion-jobs
+    value: "5"
+    cooldownPeriod: 60
+    pollingInterval: 10
+    minReplicaCount: 0
+    maxReplicaCount: 10
+
+istio:
+  enabled: false
+  gateway: istio-system/public-gateway
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  cpuTargetPercentage: 70
+  memoryTargetPercentage: 80
+
+pdb:
+  enabled: true
+
+manageNamespace: false
+namespaceLabels:
+  pod-security.kubernetes.io/enforce: "restricted"
+  pod-security.kubernetes.io/audit: "restricted"
+  pod-security.kubernetes.io/warn: "restricted"
+
+quota:
+  enabled: false
+  hard:
+    requests.cpu: "2"
+    requests.memory: 4Gi
+    limits.cpu: "4"
+    limits.memory: 8Gi
+  scopes: []
+
+limitrange:
+  enabled: false
+  default:
+    cpu: "500m"
+    memory: "512Mi"
+  defaultRequest:
+    cpu: "200m"
+    memory: "256Mi"
+
+rbac:
+  enabled: false
+
+externalSecrets:
+  enabled: false
+  storeRef:
+    name: gsm-store
+    kind: ClusterSecretStore
+  keys:
+    databaseUrl: "projects/PROJECT_ID/secrets/DATABASE_URL/versions/latest"
+    redisUrl: "projects/PROJECT_ID/secrets/REDIS_URL/versions/latest"
+    jwtKey: "projects/PROJECT_ID/secrets/JWT_SECRET_KEY/versions/latest"
+    jwtAlg: "projects/PROJECT_ID/secrets/JWT_ALGORITHM/versions/latest"
+
+monitoring:
+  dcgm:
+    enabled: false

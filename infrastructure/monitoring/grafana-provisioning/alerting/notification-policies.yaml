@@ -1,0 +1,10 @@
+apiVersion: 1
+policies:
+  - orgId: 1
+    receiver: Slack - Rebellis
+    group_by: ['alertname']
+    routes:
+      - receiver: Slack - Rebellis
+        object_matchers: [[ "severity", "=", "critical" ]]
+      - receiver: Email - NOC
+        object_matchers: [[ "severity", "=", "warning" ]]

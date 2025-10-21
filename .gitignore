@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+.dist/
+build/
+dist/
+.venv/
+venv/
+.env
+.env.*
+.python-version
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker/Compose
+.docker/
+.docker/*
+
+# Node (if any UI)
+node_modules/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Helm chart build
+chart.tgz
+
+# Secrets
+*.key
+*.pem
+*.crt
+
+# Logs
+logs/
+*.log

@@ -1,0 +1,10 @@
+{{- if .Values.manageNamespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Release.Namespace }}
+  labels:
+{{- range $k, $v := .Values.namespaceLabels }}
+    {{ $k }}: {{ $v | quote }}
+{{- end }}
+{{- end }}

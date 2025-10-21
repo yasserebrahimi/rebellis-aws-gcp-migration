@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+gunicorn
+prometheus-fastapi-instrumentator
+pydantic
+
+tritonclient[all]
+redis>=5.0.0
+backoff
+numpy
+starlette-limiter

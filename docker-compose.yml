@@ -1,0 +1,78 @@
+version: "3.9"
+services:
+  api:
+    image: ${DOCKER_REGISTRY:-local}/${PROJECT_NAME:-rebellis}-api:${VERSION:-dev}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VERSION=${VERSION:-dev}
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://rebellis:password@db:5432/rebellis}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${DB_USER:-rebellis}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-rebellis}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker/data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER:-rebellis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.docker/data/redis:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  whisper:
+    image: ${DOCKER_REGISTRY:-local}/${PROJECT_NAME:-rebellis}-whisper:${VERSION:-dev}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.whisper
+    environment:
+      - WHISPER_MODEL_SIZE=${WHISPER_MODEL_SIZE:-base}
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  motion:
+    image: ${DOCKER_REGISTRY:-local}/${PROJECT_NAME:-rebellis}-motion:${VERSION:-dev}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.motion
+    environment:
+      - MOTION_MODEL_PATH=${MOTION_MODEL_PATH:-/app/models/motion}
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

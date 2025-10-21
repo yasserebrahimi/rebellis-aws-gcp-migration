@@ -1,0 +1,9 @@
+name: "identity"
+backend: "identity"
+max_batch_size: 0
+input [
+  { name: "INPUT0", data_type: TYPE_FP32, dims: [ 16 ] }
+]
+output [
+  { name: "OUTPUT0", data_type: TYPE_FP32, dims: [ 16 ] }
+]

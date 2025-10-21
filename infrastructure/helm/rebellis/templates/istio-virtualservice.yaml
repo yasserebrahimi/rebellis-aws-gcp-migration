@@ -1,0 +1,15 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "rebellis.fullname" . }}-api
+spec:
+  hosts: ["{{ .Values.ingress.hosts | first | default (list (dict "host" "api.example.com")) | first | get "host" }}"]
+  gateways: ["{{ .Values.istio.gateway | default "istio-system/public-gateway" }}"]
+  http:
+  - route:
+    - destination:
+        host: {{ include "rebellis.fullname" . }}-api
+        port:
+          number: 80
+{{- end }}

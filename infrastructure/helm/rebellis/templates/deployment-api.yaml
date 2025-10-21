@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rebellis.fullname" . }}-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "rebellis.fullname" . }}-api
+  template:
+    metadata:
+      labels:
+        app: {{ include "rebellis.fullname" . }}-api
+    spec:
+      serviceAccountName: {{ include "rebellis.fullname" . }}-api
+      containers:
+        - name: api
+{- if .Values.cloudsql.enabled }
+- name: cloud-sql-proxy
+  image: { .Values.cloudsql.image }
+  args:
+    - "{{ .Values.cloudsql.instanceConnectionName }}"
+    - "--port={{ .Values.cloudsql.port }}"
+    {'- "--private-ip"' if True else ''}
+    - "--structured-logs"
+  securityContext:
+    runAsNonRoot: true
+  resources:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+ {- toYaml .Values.cloudsql.resources | nindent 22 }
+{- end }
+          image: "{{ .Values.image.registry }}/{{ .Values.api.imageName }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.api.port }}
+          envFrom:
+            - secretRef: { name: {{ .Values.envFromSecret }} }
+          resources:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+ {{- toYaml .Values.api.resources | nindent 12 }}
+          livenessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          startupProbe:
+            httpGet: { path: /health, port: 8000 }
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+
+
+            httpGet: { path: /health, port: {{ .Values.api.port }} }
+            initialDelaySeconds: 10
+            periodSeconds: 10
