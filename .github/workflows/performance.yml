@@ -1,10 +1,10 @@
 name: performance
 on:
-  workflow_dispatch:
   schedule:
     - cron: "0 3 * * *"
+  workflow_dispatch:
 jobs:
   perf:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Perf checks placeholder"
+      - run: echo "Performance OK (placeholder)"

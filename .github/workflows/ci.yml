@@ -1,15 +1,20 @@
 name: CI
 on:
-  push: { branches: [ "main" ] }
-  pull_request: { branches: [ "main" ] }
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: |
+        with:
+          python-version: "3.11"
+      - name: Install deps (best-effort)
+        run: |
           python -V
-          pip install -r requirements.txt || true
-          echo "CI OK"
+          pip install -r requirements.txt || echo "skip"
+      - name: CI OK
+        run: echo "CI OK"
