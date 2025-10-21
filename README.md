@@ -2,9 +2,12 @@
 
 > **Production‑grade FastAPI + ML (Whisper, Motion)** on **GKE** with **Helm**, **KEDA**, **Prometheus/Grafana**, **Cloud SQL**, **Workload Identity** and a hardened **DevSecOps** toolchain.
 
-[![CI](https://github.com/Yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/ci.yml)
-[![CD](https://github.com/Yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/cd.yml)
-[![Perf](https://github.com/Yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/performance.yml/badge.svg?branch=main)](https://github.com/Yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/performance.yml)
+[![CI](https://github.com/yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/ci.yml/badge.svg?branch=main&event=push&stamp=1)](https://github.com/yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/ci.yml)
+
+[![CD](https://github.com/yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/cd.yml/badge.svg?branch=main&event=push&stamp=1)](https://github.com/yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/cd.yml)
+
+[![performance](https://github.com/yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/performance.yml/badge.svg?branch=main&event=workflow_dispatch&stamp=1)](https://github.com/yasserebrahimi/rebellis-aws-gcp-migration/actions/workflows/performance.yml)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11-blue)](#)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-GKE-success)](#)
